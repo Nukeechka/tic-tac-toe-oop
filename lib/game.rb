@@ -13,18 +13,22 @@ class Game
     @board = Board.new
   end
 
-  def show_board
-    @board.show_board
-  end
-
-  def start_game
+  def start_game # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
     loop do
-      cell = gets.chomp
-      @board.change_board(@player_x.choice(cell).to_i, @player_x)
-      show_board
-      cell = gets.chomp
-      @board.change_board(@player_o.choice(cell).to_i, @player_o)
-      show_board
+      if @board.change_board(@player_x.choice.to_i, @player_x) == -1
+        print 'Game is finish!'
+        break
+      end
+      while @board.change_board(@player_x.choice.to_i, @player_x) == false
+      end
+      if @board.check_combination != false
+        print "Winner is #{@board.check_combination}"
+        return
+      end
+      loop do
+        result = @board.change_board(@player_o.choice.to_i, @player_o)
+        break if result != false
+      end
     end
   end
 end
