@@ -7,17 +7,20 @@ class Player
     @team = team
   end
 
-  def choice
-    gets.chomp
-  end
-
-  def moves_add(cell)
-    @@moves.push(cell)
-    true
-  end
-
-  def moves
-    @@moves
+  def move # rubocop:disable Metrics/MethodLength
+    begin # rubocop:disable Style/RedundantBegin
+      number = Kernel.gets.match(/\d+/)[0].to_i
+      if @@moves.none?(number) && number.positive? && number < 10
+        @@moves << number
+      else
+        continue
+      end
+    rescue StandardError
+      puts 'Erroneous inputs! Try again..'
+      retry
+    else
+      number
+    end
   end
 
   attr_reader :team

@@ -17,37 +17,6 @@ class Board
     end
   end
 
-  def change_board(cell, player) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength
-    return -1 if all_cells_filled?
-
-    if player.moves.include?(cell)
-      print "You can't choose this cell, change your move to another: \n"
-      return false
-    end
-    case cell
-    when 1
-      grid[0][0] = player.team
-    when 2
-      grid[0][1] = player.team
-    when 3
-      grid[0][2] = player.team
-    when 4
-      grid[1][0] = player.team
-    when 5
-      grid[1][1] = player.team
-    when 6
-      grid[1][2] = player.team
-    when 7
-      grid[2][0] = player.team
-    when 8
-      grid[2][1] = player.team
-    when 9
-      grid[2][2] = player.team
-    end
-    show_board
-    player.moves_add(cell)
-  end
-
   def all_cells_filled?
     grid.each do |row|
       row.each do |cell|
@@ -70,6 +39,18 @@ class Board
     false
   end
 
+  def diagonal_check # rubocop:disable Metrics/AbcSize
+    return false if grid[1][1] == '*'
+
+    center_cell = grid[1][1]
+    left_diagonal_cells = [grid[0][0], center_cell, grid[2][2]]
+    right_diagonal_cells = [grid[0][2], center_cell, grid[2][0]]
+    return center_cell if left_diagonal_cells.all?(center_cell)
+    return center_cell if right_diagonal_cells.all?(center_cell)
+
+    false
+  end
+
   def row_check
     grid.each do |row|
       count = 0
@@ -82,15 +63,33 @@ class Board
     false
   end
 
-  def check_combination
-    return false if row_check == false && column_check == false
+  def get_spot(player)
+    index_player = player.move
 
-    return row_check if row_check != false
+    i = 1
+    grid.each_with_index do |row, index_row|
+      row.each_with_index do |_cell, index_cell|
+        return [index_row, index_cell] if i == index_player
 
-    column_check if column_check != false
+        i += 1
+      end
+    end
+  end
+
+  def update_board(player)
+    cell = get_spot(player)
+    grid[cell[0]][cell[1]] = player.team
+    show_board
+    check_board = [row_check, column_check, diagonal_check]
+    unless check_board.all?(false)
+      check_board.each do |result|
+        return result unless result == false
+      end
+    end
+    false
   end
 
   protected
 
-  attr_accessor :grid
+  attr_accessor :grid, :moves
 end

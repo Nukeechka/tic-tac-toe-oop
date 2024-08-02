@@ -13,21 +13,23 @@ class Game
     @board = Board.new
   end
 
-  def start_game # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+  def start_game # rubocop:disable Metrics/MethodLength
+    puts "\nFirst start a X"
+    puts 'Enter number of cell from 1 to 9:'
     loop do
-      if @board.change_board(@player_x.choice.to_i, @player_x) == -1
-        print 'Game is finish!'
+      result = @board.update_board(@player_x)
+      unless result == false
+        puts "Game finish! Winner is #{result}"
         break
       end
-      while @board.change_board(@player_x.choice.to_i, @player_x) == false
+      if @board.all_cells_filled?
+        puts 'Game finish. Draw!'
+        break
       end
-      if @board.check_combination != false
-        print "Winner is #{@board.check_combination}"
-        return
-      end
-      loop do
-        result = @board.change_board(@player_o.choice.to_i, @player_o)
-        break if result != false
+      result = @board.update_board(@player_o)
+      unless result == false
+        puts "Game finish! Winner is #{result}"
+        break
       end
     end
   end
